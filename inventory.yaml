@@ -1,0 +1,8 @@
+all:
+  hosts:
+  children:
+    training:
+      hosts:
+        alpine-node1:
+          ansible_host: 10.7.2.31
+          ansible_port: 22

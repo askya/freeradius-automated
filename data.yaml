@@ -1,0 +1,31 @@
+servers:
+  - name: employee
+    ips:
+      - ip: 192.168.1.10
+    ports:
+      - type: auth
+        number: 1812
+      - type: acct
+        number: 1813
+    clients:
+      - name: restaurant-ap1
+        ip: 10.0.0.2
+        secret: ItI$4UNoMoreFear
+      - name: restaurant-ap2
+        ip: 10.0.0.3
+        secret: ItI$4UMoreKnowledge
+  - name: restaurant
+    ips:
+      - ip: 192.168.1.10
+    ports:
+      - type: auth
+        number: 1814
+      - type: acct
+        number: 1815
+    clients:
+      - name: emplyee-ap1
+        ip: 10.0.1.10
+        secret: DoWhatYouDoANDONLYThat
+      - name: employee-ap2
+        ip: 10.0.1.11
+        secret: Work4Service

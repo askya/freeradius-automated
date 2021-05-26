@@ -1,0 +1,18 @@
+# This playbook reads data from a file and use then to render Jinja template files to remote server.
+---
+- name: Learn variables
+  hosts: training
+  vars:
+    - username: crafter
+    - home: /home/crafter
+  tasks:
+    - name: Print variables
+      debug:
+        msg: "Username: {{ username }}. Home dir: {{ home }}"
+    - name: Load site data
+      ansible.builtin.include_vars:
+        file: data.yaml
+        name: site_def
+    - name: Access variables loaded from data.yaml
+      debug:
+        msg: " Loaded: {{ site_def }}"
