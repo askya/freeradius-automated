@@ -10,13 +10,13 @@ All the servers use databases managed with MariaDB as user store.
 To quickly repeat the deployment of this infra, I use ansible to automate it.
 
 3. Work Plan
- · Create site description to hold data required to configure FreeRADIUS
- · Required modules, servers configurations template
- · Déploy configuration files onto FreeRADIUS server
- · Install FreeRADIUS
- · Install MariaDB
- · Create databases for FreeRADIUS and create schema
- · Lunch FreeRADIUS with the automated configuration and adjust automation
+ · Create site description to hold data required to configure FreeRADIUS.  
+ · Required modules, servers configurations template  
+ · Déploy configuration files onto FreeRADIUS server.  
+ · Install FreeRADIUS.  
+ · Install MariaDB.  
+ · Create databases for FreeRADIUS and create schema    
+ · Lunch FreeRADIUS with the automated configuration and adjust automation  
  
 4.
 
