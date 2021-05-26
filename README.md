@@ -1,7 +1,7 @@
 # freeradius-automated
 
 1. Goal of the work
-Automate FreeRADIUS deployment using Ansile
+Automate FreeRADIUS deployment using Ansible
 
 2. Context
 I am working on a projet where I use FreeRADIUS to setup 802.1x authentication.
