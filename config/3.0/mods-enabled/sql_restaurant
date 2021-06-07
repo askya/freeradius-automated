@@ -1,0 +1,101 @@
+# -*- text -*-
+##
+## sql.conf -- SQL modules
+##
+##	$Id: 4a59483c35c77f573fb177919e19ba4434cc3da1 $
+
+######################################################################
+#
+#  Configuration for the SQL module
+#
+#  The database schemas and queries are located in subdirectories:
+#
+#	sql/<DB>/main/schema.sql	Schema
+#	sql/<DB>/main/queries.conf	Authorisation and Accounting queries
+#
+#  Where "DB" is mysql, mssql, oracle, or postgresql.
+#
+#
+
+sql sql_restaurant {
+	driver = "rlm_sql_mysql"
+
+	mysql {
+		# If yes, (or auto and libmysqlclient reports warnings are
+		# available), will retrieve and log additional warnings from
+		# the server if an error has occured. Defaults to 'auto'
+		warnings = auto
+	}
+
+	dialect = "mysql"
+
+	# Connection info:
+	#
+	server = "192.168.11.214"
+	port = 3306
+	login = "drafir"
+	password = "NpR793Wdf"
+
+	# Database table configuration for everything except Oracle
+	radius_db = "zener_restaurant"
+
+	acct_table1 = "radacct"
+	acct_table2 = "radacct"
+
+	# Allow for storing data after authentication
+	postauth_table = "radpostauth"
+
+	# Tables containing 'check' items
+	authcheck_table = "radcheck"
+	groupcheck_table = "radgroupcheck"
+
+	# Tables containing 'reply' items
+	authreply_table = "radreply"
+	groupreply_table = "radgroupreply"
+
+	# Table to keep group info
+	usergroup_table = "radusergroup"
+
+	# If set to 'yes' (default) we read the group tables unless Fall-Through = no in the reply table.
+	# If set to 'no' we do not read the group tables unless Fall-Through = yes in the reply table.
+	read_groups = no
+
+	# If set to 'yes' (default) we read profiles unless Fall-Through = no in the groupreply table.
+	# If set to 'no' we do not read profiles unless Fall-Through = yes in the groupreply table.
+#	read_profiles = yes
+
+	# Remove stale session if checkrad does not see a double login
+	delete_stale_sessions = yes
+
+	query_timeout = 5
+
+	pool {
+		start = ${thread[pool].start_servers}
+
+		#  Minimum number of connections to keep open
+		min = ${thread[pool].min_spare_servers}
+
+		max = ${thread[pool].max_servers}
+
+		spare = ${thread[pool].max_spare_servers}
+
+		uses = 0
+
+		retry_delay = 30
+
+		# The lifetime (in seconds) of the connection
+		lifetime = 0
+
+		idle_timeout = 60
+	}
+
+#	read_clients = yes
+
+	client_table = "nas"
+
+#	group_attribute = "SQL-Group"
+	group_attribute = "${.:instance}-SQL-Group"
+
+	# Read database-specific queries
+	$INCLUDE ${modconfdir}/${.:name}/main/${dialect}/queries.conf
+}

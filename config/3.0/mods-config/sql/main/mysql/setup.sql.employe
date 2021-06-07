@@ -1,0 +1,27 @@
+# -*- text -*-
+##
+## admin.sql -- MySQL commands for creating the RADIUS user.
+##
+##	WARNING: You should change 'localhost' and 'radpass'
+##		 to something else.  Also update raddb/sql.conf
+##		 with the new RADIUS password.
+##
+##	$Id: aff0505a473c67b65cfc19fae079454a36d4e119 $
+
+#
+#  Create default administrator for RADIUS
+#
+#CREATE USER 'radius'@'192.168.11.214';
+#SET PASSWORD FOR 'radius'@'192.168.11.214' = PASSWORD('radpass');
+
+# The server can read any table in SQL
+UPDATE mysql.user SET Host='192.168.11.214' WHERE Host='localhost' AND User='drafir'; 
+UPDATE mysql.db SET Host='192.168.11.214' WHERE Host='localhost' AND User='drafir';
+
+GRANT ALL ON radius.* TO 'drafir'@'192.168.11.214';
+
+# The server can write to the accounting and post-auth logging table.
+#
+#  i.e.
+GRANT ALL on radius.radacct TO 'drafir'@'192.168.11.214';
+GRANT ALL on radius.radpostauth TO 'drafir'@'192.168.11.214';

@@ -1,0 +1,165 @@
+# -*- text -*-
+######################################################################
+#
+#	This is a virtual server that handles *only* inner tunnel
+#	requests for EAP-TTLS and PEAP types.
+#
+#	$Id: 70b1d8da255a740d2d1b59808393722766dc6a60 $
+#
+######################################################################
+
+server inner-tunnel {
+
+#
+#  This next section is here to allow testing of the "inner-tunnel"
+#  authentication methods, independently from the "default" server.
+#  It is listening on "localhost", so that it can only be used from
+#  the same machine.
+#
+#	$ radtest USER PASSWORD 127.0.0.1:18120 0 testing123
+#
+#  If it works, you have configured the inner tunnel correctly.  To check
+#  if PEAP will work, use:
+#
+#	$ radtest -t mschap USER PASSWORD 127.0.0.1:18120 0 testing123
+#
+#  If that works, PEAP should work.  If that command doesn't work, then
+#
+#	FIX THE INNER TUNNEL CONFIGURATION SO THAT IT WORKS.
+#
+#  Do NOT do any PEAP tests.  It won't help.  Instead, concentrate
+#  on fixing the inner tunnel configuration.  DO NOTHING ELSE.
+#
+listen {
+       ipaddr = 127.0.0.1
+       port = 18120
+       type = auth
+}
+
+
+#  Authorization. First preprocess (hints and huntgroups files),
+#  then realms, and finally look in the "users" file.
+#
+#  The order of the realm modules will determine the order that
+#  we try to find a matching realm.
+#
+#  Make *sure* that 'preprocess' comes before any realm if you
+#  need to setup hints for the remote radius server
+authorize {
+	filter_username
+
+	chap
+	mschap
+	suffix
+	update control {
+		&Proxy-To-Realm := LOCAL
+	}
+	eap {
+		ok = return
+	}
+
+	sql_employe
+
+	expiration
+
+	logintime
+
+	pap
+}
+
+
+#  Authentication.
+#
+#
+#  This section lists which modules are available for authentication.
+#  Note that it does NOT mean 'try each module in order'.  It means
+#  that a module from the 'authorize' section adds a configuration
+#  attribute 'Auth-Type := FOO'.  That authentication type is then
+#  used to pick the appropriate module from the list below.
+#
+
+#  In general, you SHOULD NOT set the Auth-Type attribute.  The server
+#  will figure it out on its own, and will do the right thing.  The
+#  most common side effect of erroneously setting the Auth-Type
+#  attribute is that one authentication method will work, but the
+#  others will not.
+#
+#  The common reasons to set the Auth-Type attribute by hand
+#  is to either forcibly reject the user, or forcibly accept him.
+#
+authenticate {
+	Auth-Type PAP {
+		pap
+	}
+
+	Auth-Type CHAP {
+		chap
+	}
+
+	Auth-Type MS-CHAP {
+		mschap
+	}
+
+	mschap
+
+	eap
+}
+
+######################################################################
+#
+#	There are no accounting requests inside of EAP-TTLS or PEAP
+#	tunnels.
+#
+######################################################################
+
+
+#  Session database, used for checking Simultaneous-Use. Either the radutmp
+#  or rlm_sql module can handle this.
+#  The rlm_sql module is *much* faster
+session {
+	sql_employe
+}
+
+
+#  Post-Authentication
+#  Once we KNOW that the user has been authenticated, there are
+#  additional steps we can take.
+#
+#  Note that the last packet of the inner-tunnel authentication
+#  MAY NOT BE the last packet of the outer session.  So updating
+#  the outer reply MIGHT work, and sometimes MIGHT NOT.  The
+#  exact functionality depends on both the inner and outer
+#  authentication methods.
+#
+#  If you need to send a reply attribute in the outer session,
+#  the ONLY safe way is to set "use_tunneled_reply = yes", and
+#  then update the inner-tunnel reply.
+post-auth {
+	sql_employe
+
+	Post-Auth-Type REJECT {
+		# log failed authentications in SQL, too.
+		sql_employe
+		attr_filter.access_reject
+
+		#
+		#  Let the outer session know which module failed, and why.
+		#
+		update outer.session-state {
+			&Module-Failure-Message := &request:Module-Failure-Message
+		}
+	}
+}
+pre-proxy {
+}
+
+#
+#  When the server receives a reply to a request it proxied
+#  to a home server, the request may be massaged here, in the
+#  post-proxy stage.
+#
+post-proxy {
+	eap
+}
+
+} # inner-tunnel server block

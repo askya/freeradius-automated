@@ -1,0 +1,264 @@
+######################################################################
+#
+#	As of 2.0.0, FreeRADIUS supports virtual hosts using the
+#	"server" section, and configuration directives.
+#
+#	Virtual hosts should be put into the "sites-available"
+#	directory.  Soft links should be created in the "sites-enabled"
+#	directory to these files.  This is done in a normal installation.
+#
+#	If you are using 802.1X (EAP) authentication, please see also
+#	the "inner-tunnel" virtual server.  You will likely have to edit
+#	that, too, for authentication to work.
+#
+#	$Id: 3616050e7625eb6b5e2ba44782fcb737b2ae6136 $
+#
+######################################################################
+#
+#	Read "man radiusd" before editing this file.  See the section
+#	titled DEBUGGING.  It outlines a method where you can quickly
+#	obtain the configuration you want, without running into
+#	trouble.  See also "man unlang", which documents the format
+#	of this file.
+#
+#	This configuration is designed to work in the widest possible
+#	set of circumstances, with the widest possible number of
+#	authentication methods.  This means that in general, you should
+#	need to make very few changes to this file.
+#
+#	The best way to configure the server for your local system
+#	is to CAREFULLY edit this file.  Most attempts to make large
+#	edits to this file will BREAK THE SERVER.  Any edits should
+#	be small, and tested by running the server with "radiusd -X".
+#	Once the edits have been verified to work, save a copy of these
+#	configuration files somewhere.  (e.g. as a "tar" file).  Then,
+#	make more edits, and test, as above.
+#
+#	There are many "commented out" references to modules such
+#	as ldap, sql, etc.  These references serve as place-holders.
+#	If you need the functionality of that module, then configure
+#	it in radiusd.conf, and un-comment the references to it in
+#	this file.  In most cases, those small changes will result
+#	in the server being able to connect to the DB, and to
+#	authenticate users.
+#
+######################################################################
+
+server zener_employee {
+listen {
+	type = auth
+	ipaddr = 192.168.11.214
+	port = 0
+
+	clients = nas_zener_employee 
+
+	limit {
+	      max_connections = 16
+	      lifetime = 0
+	      idle_timeout = 30
+	}
+}
+
+#
+#  This second "listen" section is for listening on the accounting
+#  port, too.
+#
+listen {
+	ipaddr = 192.168.11.214
+	port = 0
+	type = acct
+	clients = nas_zener_employee 
+
+	limit {
+#		max_pps = 0
+#		idle_timeout = 0
+#		lifetime = 0
+#		max_connections = 0
+	}
+}
+
+#  Authorization. First preprocess (hints and huntgroups files),
+#  then realms, and finally look in the "users" file.
+#
+#  Any changes made here should also be made to the "inner-tunnel"
+#  virtual server.
+#
+#  The order of the realm modules will determine the order that
+#  we try to find a matching realm.
+#
+#  Make *sure* that 'preprocess' comes before any realm if you
+#  need to setup hints for the remote radius server
+authorize {
+	filter_username
+
+	filter_password
+
+	preprocess
+
+	auth_log
+
+	chap
+
+	mschap
+
+	suffix
+
+	eap {
+		ok = return
+		updated = return
+	}
+# Id2real
+	sql_employe
+# Id2real
+
+	pap
+}
+
+
+#  Authentication.
+#
+#
+#  This section lists which modules are available for authentication.
+#  Note that it does NOT mean 'try each module in order'.  It means
+#  that a module from the 'authorize' section adds a configuration
+#  attribute 'Auth-Type := FOO'.  That authentication type is then
+#  used to pick the appropriate module from the list below.
+#
+
+#  In general, you SHOULD NOT set the Auth-Type attribute.  The server
+#  will figure it out on its own, and will do the right thing.  The
+#  most common side effect of erroneously setting the Auth-Type
+#  attribute is that one authentication method will work, but the
+#  others will not.
+#
+#  The common reasons to set the Auth-Type attribute by hand
+#  is to either forcibly reject the user (Auth-Type := Reject),
+#  or to or forcibly accept the user (Auth-Type := Accept).
+#
+#  Note that Auth-Type := Accept will NOT work with EAP.
+#
+#  Please do not put "unlang" configurations into the "authenticate"
+#  section.  Put them in the "post-auth" section instead.  That's what
+#  the post-auth section is for.
+#
+authenticate {
+	Auth-Type PAP {
+		pap
+	}
+
+	Auth-Type CHAP {
+		chap
+	}
+
+	Auth-Type MS-CHAP {
+		mschap
+	}
+
+	eap
+
+	Auth-Type eap {
+		eap {
+			handled = 1
+		}
+		if (handled && (Response-Packet-Type == Access-Challenge)) {
+			attr_filter.access_challenge.post-auth
+			handled  # override the "updated" code from attr_filter
+		}
+	}
+}
+
+
+#
+#  Pre-accounting.  Decide which accounting type to use.
+#
+preacct {
+	preprocess
+
+	acct_counters64
+
+	update request {
+	  	&FreeRADIUS-Acct-Session-Start-Time = "%{expr: %l - %{%{Acct-Session-Time}:-0} - %{%{Acct-Delay-Time}:-0}}"
+	}
+
+	acct_unique
+
+	suffix
+}
+
+#
+#  Accounting.  Log the accounting data.
+#
+accounting {
+	sql_employe
+	
+	attr_filter.accounting_response
+}
+
+
+#  Session database, used for checking Simultaneous-Use. Either the radutmp
+#  or rlm_sql module can handle this.
+#  The rlm_sql module is *much* faster
+session {
+	sql_employe
+}
+
+
+#  Post-Authentication
+#  Once we KNOW that the user has been authenticated, there are
+#  additional steps we can take.
+post-auth {
+	update {
+		&reply: += &session-state:
+	}
+
+	insert_acct_class
+
+	sql_employe
+
+	if (&reply:EAP-Session-Id) {
+		update reply {
+			EAP-Key-Name := &reply:EAP-Session-Id
+		}
+	}
+
+	remove_reply_message_if_eap
+
+	Post-Auth-Type REJECT {
+		sql_employe
+		attr_filter.access_reject
+
+		eap
+
+		remove_reply_message_if_eap
+	}
+
+	#
+	#  Filter access challenges.
+	#
+	Post-Auth-Type Challenge {
+#		remove_reply_message_if_eap
+#		attr_filter.access_challenge.post-auth
+	}
+
+}
+
+#
+#  When the server decides to proxy a request to a home server,
+#  the proxied request is first passed through the pre-proxy
+#  stage.  This stage can re-write the request, or decide to
+#  cancel the proxy.
+#
+#  Only a few modules currently have this method.
+#
+pre-proxy {
+}
+
+#
+#  When the server receives a reply to a request it proxied
+#  to a home server, the request may be massaged here, in the
+#  post-proxy stage.
+#
+post-proxy {
+	eap
+}
+}
