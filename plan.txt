@@ -1,0 +1,104 @@
+Automate FreeRADIUS deployment
+==============================
+
+1. Goals
+Once lunched:
+- Install freeradius
+- Install database
+- Configure database
+- Create databases for radius
+- Configure modules:
+  - SQL
+  - TTLS
+  - PEAP
+  - sqlcounter
+- Configure virtual servers
+  - zerner-tunnel
+  - employee
+  - restaurant
+- Add Access points
+
+2. Means
+- Define site config in variables
+- Create configuration templates
+- Create script to install packages
+- Use ansible
+
+3. Tasks
+× Define variables
+· Create configuration templates
+  · Add date at top of templates
+· Write playbook to install packages (CentOS & Debian)
+· Deploy configurations
+· Configure database
+· Get servers status
+· Test installation
+· Write user guide
+· Write technical documentation
+
+4. Working
+· Site declaration info
+  · eap
+    - max_sessions
+    - private_key_file
+    - certificate_file
+    - private_key_password
+    - ca_file
+    - ttls
+      - virtual_server
+      - require_client_cert
+   · sql
+     - instance_name
+     - server
+     - port
+     - login
+     - password
+     - radius_db
+   · sqlcounter
+     - sql_instance
+   · virtual server
+     - name
+     - type
+       - port
+       - address
+     - clients
+     - sql_instance
+   · tunnel_server
+     - name
+     - port
+     - address
+     - sql_instance
+     - name
+   · clients
+     - name
+     - client
+       - name
+       - ipaddr
+       - proto
+       - secret
+       - require_message_authenticator
+       - shortname
+       - nas_type
+  · proxy
+    - enable
+    
+· Create configuration templates
+  · SQL
+  · virtual servers
+    · employ
+    · Zener
+    · Zener tunnel
+  · clients
+  · modules: sql, eap, sqlcounter
+  · configs: sql, counter
+· Write playbook to install packages (CentOS & Debian)
+· Deploy configurations
+· Configure database
+  - database
+  - user
+  - password
+  - permissions
+  - management user
+
+· Get servers status
+· Test installation
