@@ -1,0 +1,8 @@
+---
+- name: Install MariaDB
+  hosts: all
+  tasks:
+    - name: Install MariaDB Debian
+      ansible.builtin.shell: |
+        apt update && apt dist-upgade -y
+        
