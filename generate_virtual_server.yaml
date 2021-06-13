@@ -1,0 +1,23 @@
+# This playbook reads data from a file and use then to render Jinja template files to remote server.
+---
+- name: Generate FreeRADIUS virtual Server
+  hosts: training
+  vars:
+    - username: crafter
+    - home: /home/crafter
+  tasks:
+    - name: load site definition
+      ansible.builtin.include_vars:
+        file: test_data.yaml
+        name: site_def
+    - name: Generate Clients config
+      ansible.builtin.template:
+        src: "/home/crafter/ansible/config/3.0/clients.conf.j2"
+        dest: "~/raddb/site-enabled/"
+        owner: crafter
+        group: crafter
+        follow: false
+#    - name: Show template result
+#      debug:
+#        msg: "{{ lookup('template', '/home/crafter/ansible/config/3.0/sites-enabled/virtual_server.j2') }}"
+#        #msg: "server: {{ site_def.servers[item].name }}"
