@@ -1,0 +1,151 @@
+{% for server in site_def.servers %}
+
+server {{ server.name }} {
+
+listen {
+	type = auth
+
+	ipaddr = {{ server.listen.auth.ip }}
+	port = {{ server.listen.auth.port }}
+
+	clients = {{ server.listen.auth.clients_socket_name }}
+
+	limit {
+	      max_connections = 16
+	      lifetime = 0
+	      idle_timeout = 30
+	}
+}
+
+listen {
+	type = acct
+
+	ipaddr = {{ server.listen.acct.ip }}
+	port = {{ server.listen.acct.port }}
+
+	clients = {{ server.listen.acct.clients_socket_name }}
+
+	limit {
+		max_pps = 0
+		idle_timeout = 0
+		lifetime = 0
+		max_connections = 0
+	}
+}
+
+authorize {
+	filter_username
+
+	filter_password
+
+	preprocess
+
+	auth_log
+
+	chap
+
+	mschap
+
+	suffix
+
+	eap {
+		ok = return
+		updated = return
+	}
+
+	{{ server.user_store }}
+
+	pap
+}
+
+authenticate {
+	Auth-Type PAP {
+		pap
+	}
+
+	Auth-Type CHAP {
+		chap
+	}
+
+	Auth-Type MS-CHAP {
+		mschap
+	}
+
+	eap
+
+	Auth-Type eap {
+		eap {
+			handled = 1
+		}
+		if (handled && (Response-Packet-Type == Access-Challenge)) {
+			attr_filter.access_challenge.post-auth
+			handled  # override the "updated" code from attr_filter
+		}
+	}
+}
+
+preacct {
+	preprocess
+
+	acct_counters64
+
+	update request {
+	  	&FreeRADIUS-Acct-Session-Start-Time = "%{expr: %l - %{%{Acct-Session-Time}:-0} - %{%{Acct-Delay-Time}:-0}}"
+	}
+
+	acct_unique
+
+	suffix
+}
+
+accounting {
+	{{ server.user_store }}
+	
+	attr_filter.accounting_response
+}
+
+
+session {
+	{{ server.user_store }}
+}
+
+
+post-auth {
+	update {
+		&reply: += &session-state:
+	}
+
+	insert_acct_class
+
+	{{ server.user_store }}
+
+	if (&reply:EAP-Session-Id) {
+		update reply {
+			EAP-Key-Name := &reply:EAP-Session-Id
+		}
+	}
+
+	remove_reply_message_if_eap
+
+	Post-Auth-Type REJECT {
+		{{ server.user_store }}
+		attr_filter.access_reject
+
+		eap
+
+		remove_reply_message_if_eap
+	}
+
+	Post-Auth-Type Challenge {
+	}
+
+}
+
+pre-proxy {
+}
+
+post-proxy {
+	eap
+}
+}
+{% endfor %}

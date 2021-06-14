@@ -1,23 +1,38 @@
 servers:
   - name: employee
-    ips:
-      - ip: 192.168.1.10
-    ports:
-      - type: auth
-        number: 1812
-        socket_name: resta
-      - type: acct
-        number: 1813
+    listen:
+      auth:
+        ip: 192.168.1.10
+        port: 1812
+        clients_socket_name: employe_nases
+      acct:
+        ip: 192.168.1.10
+        port: 1813
+        clients_socket_name: employe_nases
+    user_store: sql_employe
   - name: restaurant
-    ips:
-      - ip: 192.168.1.10
-    ports:
-      - type: auth
-        number: 1814
-        socket_name: 
-      - type: acct
-        number: 1815
-sockets:
+    listen:
+      auth:
+        ip: 192.168.1.10
+        port: 1812
+        clients_socket_name: restaurant
+      acct:
+        ip: 192.168.1.10
+        port: 1813
+        clients_socket_name: restaurant
+    user_store: sql_restaurant
+tunnel_servers:
+  - tunnel_employe:
+    listen:
+      - auth:
+        ip: 192.168.1.10
+        port: 18120
+        clients_socket_name: restaurant
+    user_store: sql_restaurant
+    modules:
+      - expiration
+      - logintime
+client_sockets:
   - restaurant:
     - client: bonicci-ap1
       ip: 10.0.1.20
