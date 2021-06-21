@@ -1,5 +1,9 @@
 {% for server in site_def.servers %}
 
+#
+# Virtual server {{ server.name }}
+#
+
 server {{ server.name }} {
 
 listen {
@@ -89,9 +93,11 @@ preacct {
 
 	acct_counters64
 
+{% raw %}
 	update request {
 	  	&FreeRADIUS-Acct-Session-Start-Time = "%{expr: %l - %{%{Acct-Session-Time}:-0} - %{%{Acct-Delay-Time}:-0}}"
 	}
+{% endraw %}
 
 	acct_unique
 

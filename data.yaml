@@ -22,12 +22,10 @@ servers:
         clients_socket_name: restaurant
     user_store: sql_restaurant
 tunnel_servers:
-  - tunnel_employe:
+  - name: tunnel_employe
     listen:
-      - auth:
-        ip: 192.168.1.10
-        port: 18120
-        clients_socket_name: restaurant
+      ip: 192.168.1.10
+      port: 18120
     user_store: sql_restaurant
     modules:
       - expiration
