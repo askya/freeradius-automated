@@ -58,11 +58,11 @@ eap {{ eap_module.name }} {
 	#  ANYONE who has a certificate signed by them can
 	#  authenticate via EAP-TLS!  This is likely not what you want.
 	tls-config tls-common {
-		private_key_password = {{ eap_module.private_key_password }}
-		private_key_file = {{ eap_module.private_key_file }}
-		certificate_file = {{ eap_module.certificate_file }}
+		private_key_password = {{ eap_module.tls_common.private_key_password }}
+		private_key_file = {{ eap_module.tls_common.private_key_file }}
+		certificate_file = {{ eap_module.tls_common.certificate_file }}
 
-		ca_file = {{ eap_module.ca_file }}
+		ca_file = {{ eap_module.tls_common.ca_file }}
 
 		auto_chain = yes
 
@@ -134,8 +134,8 @@ eap {{ eap_module.name }} {
 		#
 		#  The values must be in quotes.
 		#
-		tls_min_version = "{{ eap_module.tls_min_version }}"
-		tls_max_version = "{{ eap_module.tls_max_version }}"
+		tls_min_version = "{{ eap_module.tls_common.tls_min_version }}"
+		tls_max_version = "{{ eap_module.tls_common.tls_max_version }}"
 #		tls_max_version = "1.3"
 
 

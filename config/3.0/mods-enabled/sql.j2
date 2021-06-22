@@ -12,7 +12,7 @@
 #
 #	sql/<DB>/main/schema.sql	Schema
 #	sql/<DB>/main/queries.conf	Authorisation and Accounting queries
-{% for database in site_def.databases }
+{% for database in site_def.databases %}
 
 #
 # Config DB {{ database.name }}
@@ -35,7 +35,7 @@ sql {{ database.name }} {
 	server = "{{ database.server }}"
 	port = {{ database.port }}
 	login = "{{ database.login }}"
-	password = "{{ databse.password }}"
+	password = "{{ database.password }}"
 
 	# Database table configuration for everything except Oracle
 	radius_db = "{{ database.radius_db }}"

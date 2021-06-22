@@ -31,6 +31,21 @@
         owner: crafter
         group: crafter
         follow: false
+    - name: Generate SQL Modules
+      ansible.builtin.template:
+        src: "/home/crafter/ansible/config/3.0/mods-enabled/sql.j2"
+        dest: "~/raddb/site-enabled/crafted_sql"
+        owner: crafter
+        group: crafter
+        follow: false
+    - name: Generate EAP configs
+      ansible.builtin.template:
+        src: "/home/crafter/ansible/config/3.0/mods-enabled/eap.j2"
+        dest: "~/raddb/site-enabled/crafted_eap"
+        owner: crafter
+        group: crafter
+        follow: false
+
 #    - name: Show template result
 #      debug:
 #        #msg: "{{ lookup('template', '/home/crafter/ansible/config/3.0/sites-enabled/virtual_server.j2') }}"

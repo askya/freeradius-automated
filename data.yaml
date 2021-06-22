@@ -59,10 +59,10 @@ eap_configs:
   - name: employee
     default_eap_type: ttls
     tls_common:
-      private_key_password: 
-      private_key_file:
-      certificate_file: 
-      ca_file: 
+      private_key_password: Veloat
+      private_key_file: zekihui.key.pem
+      certificate_file: zekihui.cert.pem
+      ca_file: ca-chain.cert.pem
       auto_chain: yes
       tls_min_version: 1.0
       tls_max_version: 1.2
