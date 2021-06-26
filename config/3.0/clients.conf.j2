@@ -1,8 +1,13 @@
 {% for sockets in site_def.client_sockets %}
 {% for socket, clients in sockets.items() %}
-
+#
+# Socket {{ socket }}
+#
 clients {{ socket }} {
 	{% for client in clients -%}
+	#
+	# Client {{ client.client }}
+	#
 	client {{ client.client }} {
 		ipaddr = {{ client.ip }}
 		proto = *

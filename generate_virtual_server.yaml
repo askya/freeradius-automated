@@ -12,35 +12,35 @@
         name: site_def
     - name: Generate Clients config
       ansible.builtin.template:
-        src: "/home/crafter/ansible/config/3.0/clients.conf.j2"
-        dest: "~/raddb/"
+        src: "config/3.0/clients.conf.j2"
+        dest: "~/raddb/clients.conf"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate Virtual Server
       ansible.builtin.template:
-        src: "/home/crafter/ansible/config/3.0/sites-enabled/virtual_server.j2"
+        src: "config/3.0/sites-enabled/virtual_server.j2"
         dest: "~/raddb/site-enabled/crafted_servers"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate Tunnel Server
       ansible.builtin.template:
-        src: "/home/crafter/ansible/config/3.0/sites-enabled/tunnel.j2"
+        src: "config/3.0/sites-enabled/tunnel.j2"
         dest: "~/raddb/site-enabled/crafted_tunnels"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate SQL Modules
       ansible.builtin.template:
-        src: "/home/crafter/ansible/config/3.0/mods-enabled/sql.j2"
+        src: "config/3.0/mods-enabled/sql.j2"
         dest: "~/raddb/site-enabled/crafted_sql"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate EAP configs
       ansible.builtin.template:
-        src: "/home/crafter/ansible/config/3.0/mods-enabled/eap.j2"
+        src: "config/3.0/mods-enabled/eap.j2"
         dest: "~/raddb/site-enabled/crafted_eap"
         owner: crafter
         group: crafter

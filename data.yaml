@@ -1,62 +1,97 @@
 servers:
-  - name: employee
+  - name: employe
     listen:
       auth:
-        ip: 192.168.1.10
+        ip: 10.0.4.230
         port: 1812
-        clients_socket_name: employe_nases
+        clients_socket_name: employe
       acct:
-        ip: 192.168.1.10
+        ip: 10.0.4.230
         port: 1813
-        clients_socket_name: employe_nases
+        clients_socket_name: employe
     user_store: sql_employe
+    modules:
+      authorization:
+        - sql_employe
+        - sqlcounter
+      accounting:
+        - sql_employe
+      session:
+        - sql_employe
   - name: restaurant
     listen:
       auth:
-        ip: 192.168.1.10
-        port: 1812
+        ip: 10.0.4.230
+        port: 1814
         clients_socket_name: restaurant
       acct:
-        ip: 192.168.1.10
-        port: 1813
+        ip: 10.0.4.230
+        port: 1815
         clients_socket_name: restaurant
     user_store: sql_restaurant
+    modules:
+      authorization:
+        - sql_restaurant
+        - sqlcounter
+      accounting:
+        - sql_restaurant
+      session:
+        - sql_restaurant
 tunnel_servers:
   - name: tunnel_employe
     listen:
-      ip: 192.168.1.10
+      ip: 127.0.0.1
       port: 18120
-    user_store: sql_restaurant
+    user_store: sql_employe
     modules:
+      authz:
       - expiration
       - logintime
+        - sql_employe
+        - sqlcounter
+      acct:
+        - sql_employe
+      session:
+        - sql_employe
 client_sockets:
   - restaurant:
-    - client: bonicci-ap1
-      ip: 10.0.1.20
+    - client: resto-ap1
+      ip: 172.16.16.10
       secret: "This is a secret"
       nas_type: "other"
-    - client: bonicci-ap2
-      ip: 10.0.1.21
+    - client: resto-ap2
+      ip: 172.16.16.11
       secret: "AP1 secret"
-  - employee:
-    - client: zener-ap1
-      ip: 10.0.2.10
+  - employe:
+    - client: emp1
+      ip: 10.0.4.231
       secret: "zap-secret"
-    - client: zener-ap2
-      ip: 10.0.2.21
+    - client: emp2
+      ip: 10.0.4.232
+      secret: "zap-secret"
+    - client: emp3
+      ip: 10.0.4.233
+      secret: "zap-secret"
+    - client: r1-sw-1
+      ip: 10.0.2.5
+      secret: "zap-secret"
+    - client: r1-sw-2
+      ip: 10.0.2.6
+      secret: "zap-secret"
+    - client: rdc-sw-1
+      ip: 10.0.2.7
       secret: "zap-secret"
 databases:
-  - name: sql_employee
+  - name: sql_employe
     driver: rml_sql_mysql
     dialect: mysql
-    server: 192.168.11.214
+    server: 127.0.0.1
     port: 3306
     login: drafi
     password: 2beKnown
     radius_db: drafizd
 eap_configs:
-  - name: employee
+  - name: employe
     default_eap_type: ttls
     tls_common:
       private_key_password: Veloat
@@ -72,5 +107,3 @@ eap_configs:
     peap:
       default_tunneled_eap: mschapv2
       virtual_server: tunnel_employe
-
-
