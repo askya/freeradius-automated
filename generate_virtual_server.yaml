@@ -5,6 +5,7 @@
   vars:
     - username: crafter
     - home: /home/crafter
+    - raddb: '~/raddb1'
   tasks:
     - name: load site definition
       ansible.builtin.include_vars:
@@ -13,35 +14,35 @@
     - name: Generate Clients config
       ansible.builtin.template:
         src: "config/3.0/clients.conf.j2"
-        dest: "~/raddb/clients.conf"
+        dest: "{{ raddb }}/clients.conf"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate Virtual Server
       ansible.builtin.template:
         src: "config/3.0/sites-enabled/virtual_server.j2"
-        dest: "~/raddb/site-enabled/crafted_servers"
+        dest: "{{ raddb }}/site-enabled/crafted_servers"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate Tunnel Server
       ansible.builtin.template:
         src: "config/3.0/sites-enabled/tunnel.j2"
-        dest: "~/raddb/site-enabled/crafted_tunnels"
+        dest: "{{ raddb }}/site-enabled/crafted_tunnels"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate SQL Modules
       ansible.builtin.template:
         src: "config/3.0/mods-enabled/sql.j2"
-        dest: "~/raddb/site-enabled/crafted_sql"
+        dest: "{{ raddb }}/mods-enabled/crafted_sql"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate EAP configs
       ansible.builtin.template:
         src: "config/3.0/mods-enabled/eap.j2"
-        dest: "~/raddb/site-enabled/crafted_eap"
+        dest: "{{ raddb }}/mods-enabled/crafted_eap"
         owner: crafter
         group: crafter
         follow: false
