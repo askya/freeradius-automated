@@ -1,68 +1,41 @@
 servers:
-  - name: employe
+  - name: tinlxc
     listen:
       auth:
-        ip: 10.0.4.230
+        ip: 172.16.2.11
         port: 1812
-        clients_socket_name: employe
+        clients_socket_name: tinlxc
       acct:
-        ip: 10.0.4.230
+        ip: 172.16.2.11
         port: 1813
-        clients_socket_name: employe
-    user_store: sql_employe
+        clients_socket_name: tinlxc
+    user_store: sql_tinlxc
     modules:
       authorization:
-        - sql_employe
+        - sql_tinlxc
         - sqlcounter
       accounting:
-        - sql_employe
+        - sql_tinlxc
       session:
-        - sql_employe
-  - name: restaurant
-    listen:
-      auth:
-        ip: 10.0.4.230
-        port: 1814
-        clients_socket_name: restaurant
-      acct:
-        ip: 10.0.4.230
-        port: 1815
-        clients_socket_name: restaurant
-    user_store: sql_restaurant
-    modules:
-      authorization:
-        - sql_restaurant
-        - sqlcounter
-      accounting:
-        - sql_restaurant
-      session:
-        - sql_restaurant
+        - sql_tinlxc
 tunnel_servers:
-  - name: tunnel_employe
+  - name: tunnel_tinlxc
     listen:
       ip: 127.0.0.1
       port: 18120
-    user_store: sql_employe
+    user_store: sql_tinlxc
     modules:
       authz:
-      - expiration
-      - logintime
-        - sql_employe
+        - expiration
+        - logintime
+        - sql_tinlxc
         - sqlcounter
       acct:
-        - sql_employe
+        - sql_tinlxc
       session:
-        - sql_employe
+        - sql_tinlxc
 client_sockets:
-  - restaurant:
-    - client: resto-ap1
-      ip: 172.16.16.10
-      secret: "Thisisasecret"
-      nas_type: "other"
-    - client: resto-ap2
-      ip: 172.16.16.11
-      secret: "AP1secret"
-  - employe:
+  - tinlxc:
     - client: emp1
       ip: 10.0.4.231
       secret: "zap-secret"
@@ -82,16 +55,16 @@ client_sockets:
       ip: 10.0.2.7
       secret: "zap-secret"
 databases:
-  - name: sql_employe
+  - name: sql_tinlxc
     driver: rlm_sql_mysql
     dialect: mysql
-    server: 127.0.0.1
+    server: 172.16.2.10
     port: 3306
-    login: drafi
+    login: frcraft
     password: 2beKnown
-    radius_db: drafizd
+    radius_db: tinlxc
 eap_configs:
-  - name: employe
+  - name: tinlxc
     default_eap_type: ttls
     tls_common:
       private_key_password: Veloat
@@ -103,7 +76,7 @@ eap_configs:
       tls_max_version: 1.2
     ttls:
       default_tunneled_eap: mschapv2
-      virtual_server: tunnel_employe
+      virtual_server: tunnel_tinlxc
     peap:
       default_tunneled_eap: mschapv2
-      virtual_server: tunnel_employe
+      virtual_server: tunnel_tinlxc
