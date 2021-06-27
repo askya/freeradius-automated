@@ -57,11 +57,11 @@ client_sockets:
   - restaurant:
     - client: resto-ap1
       ip: 172.16.16.10
-      secret: "This is a secret"
+      secret: "Thisisasecret"
       nas_type: "other"
     - client: resto-ap2
       ip: 172.16.16.11
-      secret: "AP1 secret"
+      secret: "AP1secret"
   - employe:
     - client: emp1
       ip: 10.0.4.231
@@ -83,7 +83,7 @@ client_sockets:
       secret: "zap-secret"
 databases:
   - name: sql_employe
-    driver: rml_sql_mysql
+    driver: rlm_sql_mysql
     dialect: mysql
     server: 127.0.0.1
     port: 3306
