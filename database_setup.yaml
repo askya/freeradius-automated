@@ -11,6 +11,14 @@
       ansible.builtin.include_vars:
         file: data.yaml
         name: site_def
+    - name: Copy FreeRADIUS Schema
+      ansible.builtin.copy:
+        src: "config/db_setup/schema.sql"
+        dest: "{{ raddb }}/schema.sql"
+        owner: crafter
+        group: crafter
+        follow: false
+        
     - name: Generate Database Setup Script
       ansible.builtin.template:
         src: "config/db_setup/mysql.j2"

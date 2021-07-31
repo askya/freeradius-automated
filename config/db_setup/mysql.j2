@@ -17,6 +17,8 @@
 #  Create RADIUS database {{ db.radius_db }}
 #
 CREATE DATABASE {{ db.radius_db }};
+USE {{ db.radius_db }};
+SOURCE {{ raddb }}/schema.sql;
 
 #
 #  Create default administrator for RADIUS
