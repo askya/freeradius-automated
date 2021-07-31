@@ -48,7 +48,7 @@
         follow: false
     - name: Generate Database Setup Script
       ansible.builtin.template:
-        src: "config/3.0/mods-enabled/db_setup.j2"
+        src: "db_setup.j2"
         dest: "{{ raddb }}/mods-enabled/db_setup.sql"
         owner: crafter
         group: crafter
