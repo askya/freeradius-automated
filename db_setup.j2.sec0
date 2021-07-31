@@ -1,0 +1,34 @@
+# -*- text -*-
+##
+## admin.sql -- MySQL commands for creating the RADIUS user.
+##
+##	WARNING: You should change 'localhost' and 'radpass'
+##		 to something else.  Also update raddb/sql.conf
+##		 with the new RADIUS password.
+##
+##	$Id: aff0505a473c67b65cfc19fae079454a36d4e119 $
+
+#
+# Create DATABASES
+#
+{% for db in site_def.databases %}
+
+#
+#  Create RADIUS database {{ db.radius_db }}
+#
+CREATE DATABSE {{ db.radius_db }};
+
+#
+#  Create default administrator for RADIUS
+#
+CREATE USER '{{ db.login }}'@' {{ rad_server_net }}';
+SET PASSWORD FOR '{{ db.login }}'@' {{ rad_server_net }}' = PASSWORD('{{ db.password }}');
+
+# The server can read any table in SQL
+GRANT SELECT ON drafizd.* TO '{{ db.login }}'@' {{ rad_server_net }}';
+
+# The server can write to the accounting and post-auth logging table.
+#
+#  i.e.
+GRANT ALL on drafizd.radacct TO '{{ db.login }}'@' {{ rad_server_net }}';
+GRANT ALL on drafizd.radpostauth TO '{{ db.login }}'@' {{ rad_server_net }}';

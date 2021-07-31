@@ -9,21 +9,28 @@
 ##	$Id: aff0505a473c67b65cfc19fae079454a36d4e119 $
 
 #
-#  Create RADIUS database
+# Create DATABASES
 #
-CREATE DATABSE radius;
+{% for db in site_def.databases %}
+
+#
+#  Create RADIUS database {{ db.radius_db }}
+#
+CREATE DATABSE {{ db.radius_db }};
 
 #
 #  Create default administrator for RADIUS
 #
-CREATE USER 'drafi'@'localhost';
-SET PASSWORD FOR 'drafi'@'localhost' = PASSWORD('NpR793Wdf');
+CREATE USER '{{ db.login }}';
+SET PASSWORD FOR '{{ db.login }}' = PASSWORD('{{ db.password }}');
 
 # The server can read any table in SQL
-GRANT SELECT ON drafizd.* TO 'drafi'@'localhost';
+GRANT SELECT ON {{ db.radius_db }}.* TO '{{ db.login }}';
 
 # The server can write to the accounting and post-auth logging table.
 #
 #  i.e.
-GRANT ALL on drafizd.radacct TO 'drafi'@'localhost';
-GRANT ALL on drafizd.radpostauth TO 'drafi'@'localhost';
+GRANT ALL on {{ db.radius_db }}.radacct TO '{{ db.login }}';
+GRANT ALL on {{ db.radius_db }}.radpostauth TO '{{ db.login }}';
+
+{% endfor %}

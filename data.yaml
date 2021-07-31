@@ -85,11 +85,12 @@ databases:
   - name: sql_employe
     driver: rlm_sql_mysql
     dialect: mysql
-    server: 127.0.0.1
+    server: 10.7.2.34
     port: 3306
-    login: drafi
+    login: crafid
     password: 2beKnown
-    radius_db: drafizd
+    radius_db: crafid
+    rad_server_net: 10.7.2.0/24
 eap_configs:
   - name: employe
     default_eap_type: ttls

@@ -1,0 +1,7 @@
+---
+- name: Setting RADIUS Database
+  hosts: db_host
+  tasks:
+    - name: Create radius database
+      ansible.builtin.shell: |
+        su 
