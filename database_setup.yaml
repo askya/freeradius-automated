@@ -13,7 +13,7 @@
         name: site_def
     - name: Copy FreeRADIUS Schema
       ansible.builtin.copy:
-        src: "config/db_setup/schema.sql"
+        src: "db_setup/schema.sql"
         dest: "{{ raddb }}/schema.sql"
         owner: crafter
         group: crafter
@@ -21,11 +21,12 @@
         
     - name: Generate Database Setup Script
       ansible.builtin.template:
-        src: "config/db_setup/mysql.j2"
+        src: "db_setup/mysql.j2"
         dest: "{{ raddb }}/radiusdb_setup.sql"
         owner: crafter
         group: crafter
         follow: false
+
     - name: Create radius database
       ansible.builtin.shell: |
         mysql < "{{ raddb }}/radiusdb_setup.sql"

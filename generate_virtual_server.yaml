@@ -7,52 +7,51 @@
     - home: /home/crafter
     - raddb: '~/raddb1'
   tasks:
+    - name: Check directories structure
+      ansible
     - name: load site definition
       ansible.builtin.include_vars:
         file: data.yaml
         name: site_def
     - name: Generate Clients config
       ansible.builtin.template:
-        src: "config/3.0/clients.conf.j2"
+        src: "raddb/clients.conf.j2"
         dest: "{{ raddb }}/clients.conf"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate Virtual Server
       ansible.builtin.template:
-        src: "config/3.0/sites-enabled/virtual_server.j2"
+        src: "raddb/sites-enabled/virtual_server.j2"
         dest: "{{ raddb }}/site-enabled/crafted_servers"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate Tunnel Server
       ansible.builtin.template:
-        src: "config/3.0/sites-enabled/tunnel.j2"
+        src: "raddb/sites-enabled/tunnel.j2"
         dest: "{{ raddb }}/site-enabled/crafted_tunnels"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate SQL Modules
       ansible.builtin.template:
-        src: "config/3.0/mods-enabled/sql.j2"
+        src: "raddb/mods-enabled/sql.j2"
         dest: "{{ raddb }}/mods-enabled/crafted_sql"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate EAP configs
       ansible.builtin.template:
-        src: "config/3.0/mods-enabled/eap.j2"
+        src: "raddb/mods-enabled/eap.j2"
         dest: "{{ raddb }}/mods-enabled/crafted_eap"
         owner: crafter
         group: crafter
         follow: false
-    - name: Generate Database Setup Script
-      ansible.builtin.template:
-        src: "db_setup.j2"
-        dest: "{{ raddb }}/mods-enabled/db_setup.sql"
-        owner: crafter
-        group: crafter
-        follow: false
+    - name: Copy Certificates
+      ansible.builtin.copy:
+        src: raddb/tls/*
+        dest: {{ raddb }}/certs/
 
 #    - name: Show template result
 #      debug:

@@ -1,0 +1,16 @@
+---
+- name: Checking file existance With ansible
+  hosts: training
+  vars:
+    - username: crafter
+    - home: /home/crafter
+    - raddb: '~/raddb1'
+  tasks:
+    - name: Check raddb
+      stat:
+        path: {{ raddb }}
+      register: file_details
+    - debug:
+        msg: "The file / Directory {{ raddb }} exists"
+      when: file_details.stat.exists
+
