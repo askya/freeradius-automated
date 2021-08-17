@@ -1,0 +1,12 @@
+---
+- name: Setting RADIUS Database
+  hosts: db_host
+  become: no
+  vars:
+    - username: crafter
+    - u_home: /home/crafter
+    - f_path: "{{ u_home}}/frad_deploy"
+  tasks:
+    - name: Print Ansible facts
+      ansible.builtin.debug:
+        var: ansible_ssh_host

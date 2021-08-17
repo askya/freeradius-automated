@@ -1,0 +1,67 @@
+# This playbook reads data from a file and use then to render Jinja template files to remote server.
+---
+- name: Generate FreeRADIUS virtual Server
+  hosts: training
+  vars:
+    - username: crafter
+    - home: /home/crafter
+#    - raddb: '/etc/freeradius/3.0'
+    - raddb: '/home/crafter/raddb'
+  tasks:
+    - name: Check directories structure
+      ansible.builtin.stat:
+        path: "{{ raddb }}"
+      register: raddb_stat
+    - name: Alert RADDB does not exist
+      ansible.builtin.debug:
+        msg: "ALERT =:>_ {{ raddb }} does not exist. CREATE IT }}"
+      when:
+        - raddb_stat.stat.isdir is not defined
+    - name: Stop play When "{{ raddb }}" doesn't exist or is not a directory
+      ansible.builtin.meta: end_play
+      when:
+        - raddb_stat.stat.isdir is not defined 
+        - raddb_stat.stat.isdir
+    - name: load site definition
+      ansible.builtin.include_vars:
+        file: data.yaml
+        name: site_def
+    - name: Generate Clients config
+      ansible.builtin.template:
+        src: "raddb/clients.conf.j2"
+        dest: "{{ raddb }}/clients.conf"
+        owner: crafter
+        group: crafter
+        follow: false
+    - name: Generate Virtual Server
+      ansible.builtin.template:
+        src: "raddb/sites-enabled/virtual_server.j2"
+        dest: "{{ raddb }}/sites-enabled/crafted_servers"
+        owner: crafter
+        group: crafter
+        follow: false
+    - name: Generate Tunnel Server
+      ansible.builtin.template:
+        src: "raddb/sites-enabled/tunnel.j2"
+        dest: "{{ raddb }}/sites-enabled/crafted_tunnels"
+        owner: crafter
+        group: crafter
+        follow: false
+    - name: Generate SQL Modules
+      ansible.builtin.template:
+        src: "raddb/mods-enabled/sql.j2"
+        dest: "{{ raddb }}/mods-enabled/crafted_sql"
+        owner: crafter
+        group: crafter
+        follow: false
+    - name: Generate EAP configs
+      ansible.builtin.template:
+        src: "raddb/mods-enabled/eap.j2"
+        dest: "{{ raddb }}/mods-enabled/crafted_eap"
+        owner: crafter
+        group: crafter
+        follow: false
+    - name: Copy Certificates
+      ansible.builtin.copy:
+        src: raddb/tls/
+        dest: "{{ raddb }}/certs/"

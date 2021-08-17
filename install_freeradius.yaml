@@ -1,0 +1,28 @@
+---
+- name: Install FreeRADIUS
+  hosts: radius
+  tasks:
+    - name: Install MariaDB on Debian
+      ansible.builtin.shell: |
+        apt update && apt dist-upgade -y && apt -y install freeradius freeradius-mysql freeradius-utils 
+      when:
+        - ansible_facts['os_family'] == "Debian"
+        
+    - name: Check FreeRADIUS Installation
+      ansible.builtin.shell: |
+        freeradius -v
+      when:
+        - ansible_facts['os_family'] == "Debian"
+
+    - name: Install MariaDB on CentOS
+      ansible.builtin.shell: |
+        yum update -y && yum -y install freeradius freeradius-utils freeradius-mysql
+      when:
+        - ansible_facts['os_family'] == "CentOS"
+
+    - name: Check FreeRADIUS Installation
+      ansible.builtin.shell: |
+        radiusd -v
+      when:
+        - ansible_facts['os_family'] == "CentOS"
+

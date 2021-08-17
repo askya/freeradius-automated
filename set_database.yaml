@@ -1,0 +1,36 @@
+---
+- name: Setting RADIUS Database
+  hosts: db_host
+  become: yes
+  vars:
+    - username: crafter
+    - u_home: /home/crafter
+    - f_path: "{{ u_home}}/frad_deploy"
+  tasks:
+    - name: Create script dir
+      ansible.builtin.file:
+        path: "{{ f_path }}"
+        state: directory
+    - name: load site definition
+      ansible.builtin.include_vars:
+        file: data.yaml
+        name: site_def
+    - name: Copy FreeRADIUS Schema
+      ansible.builtin.copy:
+        src: "db_setup/schema.sql"
+        dest: "{{ f_path }}/schema.sql"
+        owner: "{{ username }}"
+        group: "{{ crafter }}"
+        follow: false
+        
+    - name: Generate Database Setup Script
+      ansible.builtin.template:
+        src: "db_setup/mysql.j2"
+        dest: "{{ f_path }}/radiusdb_setup.sql"
+        owner: "{{ username }}"
+        group: "{{ crafter }}"
+        follow: false
+
+    - name: Create radius database
+      ansible.builtin.shell: |
+        mysql < "{{ f_path }}/radiusdb_setup.sql"
