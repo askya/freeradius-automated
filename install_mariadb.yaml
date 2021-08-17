@@ -1,8 +1,93 @@
 ---
 - name: Install MariaDB
-  hosts: all
+  become: yes
+  hosts: db_host
+  vars:
+    cur_root_pw: "ISjp76AK"
+    nw_root_pw: "ISjp76AK"
   tasks:
-    - name: Install MariaDB Debian
-      ansible.builtin.shell: |
-        apt update && apt dist-upgade -y
-        
+    - name: Install Python Module for MySQL Ansible Module
+      apt:
+        name: python-pymysql
+        update_cache: yes
+      when:
+        - ansible_facts['os_family'] == "Debian"
+
+    - name: Install Python Module for MySQL Ansible Module
+      ansible.builtin.yum:
+        name:
+          - python-pymysql
+        state: present
+      when:
+        - ansible_facts['os_family'] == "CentOS"
+
+    - name: Install MariaDB package
+      apt:
+        name: mariadb-server
+        update_cache: yes
+      when:
+        - ansible_facts['os_family'] == "Debian"
+ 
+    - name: Install MariaDB on CentOS
+      ansible.builtin.yum:
+        name:
+          - mariadb-server
+        state: present
+      when:
+        - ansible_facts['os_family'] == "CentOS"
+
+    - name: Ensure MariaDB is listening on address 0.0.0.0
+      # shell: sed -i 's/bind-address.*128.0.0.1/bind-address=0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf
+      lineinfile:
+        path: /etc/mysql/mariadb.conf.d/50-server.cnf
+        regexp: '^bind-address.*'
+        line: bind-address = "{{ ansible_ssh_host }}"
+
+    - name: Make sure mariadb service is started
+      service:
+        name: mariadb
+        state: restarted
+ 
+    - name: Make sure MariaDB is Installed
+      community.mysql.mysql_info:
+        filter:
+          - version
+          - databases
+        login_user: root
+        login_password: "{{ cur_root_pw }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    # Secure mysql installation
+    - name: Remove MariaDB Test Database
+      community.mysql.mysql_db:
+        name: test
+        login_user: root
+        login_password: "{{ cur_root_pw }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        state: absent
+    - name: Removes all anonymous user accounts
+      community.mysql.mysql_user:
+        name: ''
+        host_all: yes
+        state: absent
+        login_user: "root"
+        login_password: "{{ cur_root_pw }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+    - name: Remove Remote access for Root Account
+      community.mysql.mysql_user:
+        name: root
+        host: "%"
+        login_user: "root"
+        login_password: "{{ cur_root_pw }}"
+        state: absent
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+    - name: Set Root Password 
+      community.mysql.mysql_user:
+        name: "root"
+        password: "{{ nw_root_pw }}"
+        check_implicit_admin: yes
+        login_user: "root"
+        login_password: "{{ cur_root_pw }}"
+        state: present
+        host_all: yes
+        login_unix_socket: /var/run/mysqld/mysqld.sock
