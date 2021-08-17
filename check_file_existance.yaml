@@ -4,11 +4,11 @@
   vars:
     - username: crafter
     - home: /home/crafter
-    - raddb: '~/raddb1'
+    - raddb: '~/raddb4'
   tasks:
     - name: Check raddb
       stat:
-        path: {{ raddb }}
+        path: "{{ raddb }}"
       register: file_details
     - debug:
         msg: "The file / Directory {{ raddb }} exists"

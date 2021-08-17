@@ -6,6 +6,11 @@ all:
         alpine-node1:
           ansible_host: 10.7.2.31
           ansible_port: 22
+    cfrad:
+      hosts:
+        cfrad1:
+          ansible_host: 10.7.2.35
+          ansible_port: 22
     db_host:
       hosts:
         mariadb:

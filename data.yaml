@@ -2,12 +2,12 @@ servers:
   - name: employe
     listen:
       auth:
-        ip: 10.0.4.230
-        port: 1812
+        ip: 10.7.2.35
+        port: 1814
         clients_socket_name: employe
       acct:
-        ip: 10.0.4.230
-        port: 1813
+        ip: 10.7.2.35
+        port: 1815
         clients_socket_name: employe
     user_store: sql_employe
     modules:
@@ -18,35 +18,16 @@ servers:
         - sql_employe
       session:
         - sql_employe
-  - name: restaurant
-    listen:
-      auth:
-        ip: 10.0.4.230
-        port: 1814
-        clients_socket_name: restaurant
-      acct:
-        ip: 10.0.4.230
-        port: 1815
-        clients_socket_name: restaurant
-    user_store: sql_restaurant
-    modules:
-      authorization:
-        - sql_restaurant
-        - sqlcounter
-      accounting:
-        - sql_restaurant
-      session:
-        - sql_restaurant
 tunnel_servers:
   - name: tunnel_employe
     listen:
       ip: 127.0.0.1
-      port: 18120
+      port: 18121
     user_store: sql_employe
     modules:
       authz:
-      - expiration
-      - logintime
+        - expiration
+        - logintime
         - sql_employe
         - sqlcounter
       acct:

@@ -5,10 +5,23 @@
   vars:
     - username: crafter
     - home: /home/crafter
-    - raddb: '~/raddb1'
+#    - raddb: '/etc/freeradius/3.0'
+    - raddb: '/home/crafter/raddb'
   tasks:
     - name: Check directories structure
-      ansible
+      ansible.builtin.stat:
+        path: "{{ raddb }}"
+      register: raddb_stat
+    - name: Alert RADDB does not exist
+      ansible.builtin.debug:
+        msg: "ALERT =:>_ {{ raddb }} does not exist. CREATE IT }}"
+      when:
+        - raddb_stat.stat.isdir is not defined
+    - name: Stop play When "{{ raddb }}" doesn't exist or is not a directory
+      ansible.builtin.meta: end_play
+      when:
+        - raddb_stat.stat.isdir is not defined 
+        - raddb_stat.stat.isdir
     - name: load site definition
       ansible.builtin.include_vars:
         file: data.yaml
@@ -23,14 +36,14 @@
     - name: Generate Virtual Server
       ansible.builtin.template:
         src: "raddb/sites-enabled/virtual_server.j2"
-        dest: "{{ raddb }}/site-enabled/crafted_servers"
+        dest: "{{ raddb }}/sites-enabled/crafted_servers"
         owner: crafter
         group: crafter
         follow: false
     - name: Generate Tunnel Server
       ansible.builtin.template:
         src: "raddb/sites-enabled/tunnel.j2"
-        dest: "{{ raddb }}/site-enabled/crafted_tunnels"
+        dest: "{{ raddb }}/sites-enabled/crafted_tunnels"
         owner: crafter
         group: crafter
         follow: false
@@ -50,11 +63,12 @@
         follow: false
     - name: Copy Certificates
       ansible.builtin.copy:
-        src: raddb/tls/*
-        dest: {{ raddb }}/certs/
+        src: raddb/tls/
+        dest: "{{ raddb }}/certs/"
 
-#    - name: Show template result
+#    - name: Show rendred values
 #      debug:
 #        #msg: "{{ lookup('template', '/home/crafter/ansible/config/3.0/sites-enabled/virtual_server.j2') }}"
-#        msg: "{{ lookup('template', '/home/crafter/ansible/vhost.j2') }}"
+#        #msg: "{{ lookup('template', '/home/crafter/ansible/vhost.j2') }}"
 #        #msg: "server: {{ site_def.servers[item].name }}"
+#        msg: "ansible_managed :{{  ansible_managed }}, template_host : {{ template_host }}, template_uid: {{ template_uid }}, template_path: {{ template_path }}, template_fullpath: {{ template_fullpath }}, template_destpath: {{ template_destpath }}, template_run_date: {{ template_run_date }}"
