@@ -44,9 +44,10 @@
         line: bind-address = "{{ ansible_ssh_host }}"
 
     - name: Make sure mariadb service is started
-      service:
+      ansible.builtin.systemd:
         name: mariadb
         state: restarted
+        enabled: yes
  
     - name: Make sure MariaDB is Installed
       community.mysql.mysql_info:

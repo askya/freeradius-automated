@@ -1,0 +1,9 @@
+databases:
+  - db: crafiddb0
+    username: crafidu0
+    user_pw: 2beKnown
+    db_schema: '/etc/freeradius/3.0/mods-config/sql/main/mysql/schema.sql'
+  - db: crafiddb1
+    username: crafidu1
+    user_pw: 2beKnown
+    db_schema: '/etc/freeradius/3.0/mods-config/sql/main/mysql/schema.sql'

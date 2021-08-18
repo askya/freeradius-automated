@@ -1,0 +1,47 @@
+---
+- name: Create MariaDB Databases and Users for FreeRADIUS
+  hosts: db_host
+  become: yes
+  vars:
+    cur_root_pw: "ISjp76AK"
+  tasks:
+    - name: Laod Informations on databases to be created
+      ansible.builtin.include_vars:
+        file: databases.yaml
+        name: db_def
+    - name: Show databases
+      ansible.builtin.debug:
+        msg: "{{ db_def }}"
+
+    - name: Create Databases
+      community.mysql.mysql_db:
+        name: "{{ item.db }}"
+        login_user: root
+        login_password: "{{ cur_root_pw }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        state: present
+      with_items: "{{ db_def.databases }}"
+
+    - name: Set Database schema
+      community.mysql.mysql_db:
+        name: "{{ item.db }}"
+        target: "{{ item.db_schema }}"
+        state: import
+        login_user: root
+        login_password: "{{ cur_root_pw }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+      with_items: "{{ db_def.databases }}"
+
+    - name: Create User Accounts & Set privileges 
+      community.mysql.mysql_user:
+        host: '%'
+        name: "{{ item.username }}"
+        password: "{{ item.user_pw }}"
+        priv:
+          "{{ item.db }}.*": 'SELECT'
+          "{{ item.db }}.radacct": 'ALL'
+          "{{ item.db }}.radpostauth": 'ALL'
+        login_user: root
+        login_password: "{{ cur_root_pw }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+      with_items: "{{ db_def.databases }}"

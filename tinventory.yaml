@@ -19,3 +19,9 @@ all:
           ansible_host: 10.7.2.32
           ansible_port: 22
           os: debian
+    radius:
+      hosts:
+        frad:
+          ansible_host: 10.7.2.32
+          ansible_port: 22
+          os: debian

@@ -1,31 +1,41 @@
 # This playbook reads data from a file and use then to render Jinja template files to remote server.
 ---
 - name: Generate FreeRADIUS virtual Server
-  hosts: training
+  hosts: radius
+  become: yes
   vars:
     - username: crafter
     - home: /home/crafter
-#    - raddb: '/etc/freeradius/3.0'
-    - raddb: '/home/crafter/raddb'
+    - raddb: '/etc/freeradius/3.0'
+      #    - raddb: '/home/crafter/raddb'
   tasks:
-    - name: Check directories structure
+    - name: Check FreeRADIUS configuration directory presence
       ansible.builtin.stat:
         path: "{{ raddb }}"
       register: raddb_stat
-    - name: Alert RADDB does not exist
+
+    - name: Alert Config Directory
       ansible.builtin.debug:
         msg: "ALERT =:>_ {{ raddb }} does not exist. CREATE IT }}"
       when:
         - raddb_stat.stat.isdir is not defined
-    - name: Stop play When "{{ raddb }}" doesn't exist or is not a directory
+
+    - name: Abort play
       ansible.builtin.meta: end_play
       when:
         - raddb_stat.stat.isdir is not defined 
         - raddb_stat.stat.isdir
-    - name: load site definition
+
+    - name: Remove FreeRADIUS default config
+      ansible.builtin.file:
+        path: "{{ raddb }}/sites-enabled/*"
+        state: absent
+
+    - name: Load site description
       ansible.builtin.include_vars:
         file: data.yaml
         name: site_def
+
     - name: Generate Clients config
       ansible.builtin.template:
         src: "raddb/clients.conf.j2"
@@ -33,6 +43,8 @@
         owner: crafter
         group: crafter
         follow: false
+        force: yes
+
     - name: Generate Virtual Server
       ansible.builtin.template:
         src: "raddb/sites-enabled/virtual_server.j2"
@@ -40,6 +52,8 @@
         owner: crafter
         group: crafter
         follow: false
+        force: yes
+
     - name: Generate Tunnel Server
       ansible.builtin.template:
         src: "raddb/sites-enabled/tunnel.j2"
@@ -47,6 +61,8 @@
         owner: crafter
         group: crafter
         follow: false
+        force: yes
+
     - name: Generate SQL Modules
       ansible.builtin.template:
         src: "raddb/mods-enabled/sql.j2"
@@ -54,6 +70,8 @@
         owner: crafter
         group: crafter
         follow: false
+        force: yes
+
     - name: Generate EAP configs
       ansible.builtin.template:
         src: "raddb/mods-enabled/eap.j2"
@@ -61,7 +79,14 @@
         owner: crafter
         group: crafter
         follow: false
+        force: yes
+
     - name: Copy Certificates
       ansible.builtin.copy:
         src: raddb/tls/
         dest: "{{ raddb }}/certs/"
+        force: yes
+    - name: Restart FreeRADIUS
+      ansible.builtin.systemd:
+        name: freeradius.service
+        state: restarted

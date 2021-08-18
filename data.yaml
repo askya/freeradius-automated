@@ -2,11 +2,11 @@ servers:
   - name: employe
     listen:
       auth:
-        ip: 10.7.2.35
+        ip: 10.7.2.32
         port: 1814
         clients_socket_name: employe
       acct:
-        ip: 10.7.2.35
+        ip: 10.7.2.32
         port: 1815
         clients_socket_name: employe
     user_store: sql_employe
@@ -62,11 +62,11 @@ client_sockets:
     - client: rdc-sw-1
       ip: 10.0.2.7
       secret: "zap-secret"
-databases:
+userstores:
   - name: sql_employe
     driver: rlm_sql_mysql
     dialect: mysql
-    server: 10.7.2.34
+    server: 10.7.2.32
     port: 3306
     login: crafid
     password: 2beKnown
