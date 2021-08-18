@@ -142,7 +142,7 @@ eap_configs:
       tls_max_version: 1.2
     ttls:
       default_tunneled_eap: mschapv2
-      virtual_server: tunnel_employe
+      virtual_server: tunnel_resto
     peap:
       default_tunneled_eap: mschapv2
-      virtual_server: tunnel_employe
+      virtual_server: tunnel_resto

@@ -3,10 +3,29 @@
   hosts: db_host
   become: no
   vars:
-    - username: crafter
-    - u_home: /home/crafter
-    - f_path: "{{ u_home}}/frad_deploy"
+    username: crafter
+    u_home: /home/crafter
+    cur_root_pw: "ISjp76AK"
   tasks:
-    - name: Print Ansible facts
+    - name: Laod Informations on databases to be created
+      ansible.builtin.include_vars:
+        file: databases.yaml
+        name: db_def
+
+    - name: Show databases
       ansible.builtin.debug:
-        var: ansible_ssh_host
+        msg: "{{ db_def }}"
+
+#    - name: Print Ansible facts
+#      ansible.builtin.debug:
+#        var: ansible_ssh_host
+    - name: Create User Accounts & Set privileges 
+      community.mysql.mysql_user:
+        host: '%'
+        name: "{{ item.username }}"
+        password: "{{ item.user_pw }}"
+        priv: '{{ item.db }}.*:SELECT/{{ item.db }}.radacct:ALL/{{ item.db }}.radpostauth:ALL'
+        login_user: root
+        login_password: "{{ cur_root_pw }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+      with_items: "{{ db_def.databases }}"

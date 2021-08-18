@@ -1,9 +1,23 @@
 databases:
   - db: crafiddb0
-    username: crafidu0
-    user_pw: 2beKnown
     db_schema: '/etc/freeradius/3.0/mods-config/sql/main/mysql/schema.sql'
   - db: crafiddb1
-    username: crafidu1
-    user_pw: 2beKnown
     db_schema: '/etc/freeradius/3.0/mods-config/sql/main/mysql/schema.sql'
+frad_users:
+  - login: crafidu0
+    user_pw: 2beKnown
+    login_host:  '%'
+    db: crafiddb0
+  - login: crafidu1
+    user_pw: 2beKnown
+    login_host:  '%'
+    db: crafiddb1
+um_users:
+  - login: crafidumu0
+    user_pw: 2beKnown
+    login_host:  'localhost'
+    db: crafiddb02beKnown
+  - login: crafidumu1
+    user_pw: 2beKnown
+    login_host:  'localhost'
+    db: crafiddb1

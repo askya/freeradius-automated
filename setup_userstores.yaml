@@ -9,9 +9,6 @@
       ansible.builtin.include_vars:
         file: databases.yaml
         name: db_def
-    - name: Show databases
-      ansible.builtin.debug:
-        msg: "{{ db_def }}"
 
     - name: Create Databases
       community.mysql.mysql_db:
@@ -32,16 +29,24 @@
         login_unix_socket: /var/run/mysqld/mysqld.sock
       with_items: "{{ db_def.databases }}"
 
-    - name: Create User Accounts & Set privileges 
+    - name: Create FreeRADIUS Database Accounts & Set privileges 
       community.mysql.mysql_user:
-        host: '%'
-        name: "{{ item.username }}"
+        host: "{{ item.login_host }}"
+        name: "{{ item.login }}"
         password: "{{ item.user_pw }}"
-        priv:
-          "{{ item.db }}.*": 'SELECT'
-          "{{ item.db }}.radacct": 'ALL'
-          "{{ item.db }}.radpostauth": 'ALL'
+        priv: '{{ item.db }}.*:SELECT/{{ item.db }}.radacct:ALL/{{ item.db }}.radpostauth:ALL'
         login_user: root
         login_password: "{{ cur_root_pw }}"
         login_unix_socket: /var/run/mysqld/mysqld.sock
-      with_items: "{{ db_def.databases }}"
+      with_items: "{{ db_def.frad_users }}"
+
+    - name: Create Usermanager Database Accounts & Set privileges 
+      community.mysql.mysql_user:
+        host: "{{ item.login_host }}"
+        name: "{{ item.login }}"
+        password: "{{ item.user_pw }}"
+        priv: '{{ item.db }}.*:ALL'
+        login_user: root
+        login_password: "{{ cur_root_pw }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+      with_items: "{{ db_def.um_users }}"

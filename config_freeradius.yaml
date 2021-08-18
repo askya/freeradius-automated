@@ -20,7 +20,7 @@
       when:
         - raddb_stat.stat.isdir is not defined
 
-    - name: Abort play
+    - name: Aborting play
       ansible.builtin.meta: end_play
       when:
         - raddb_stat.stat.isdir is not defined 
