@@ -61,7 +61,7 @@ authorize {
 
 	suffix
 
-	eap {
+	{{ server.eap_mod }} {
 		ok = return
 		updated = return
 	}
@@ -84,10 +84,10 @@ authenticate {
 		mschap
 	}
 
-	eap
+	{{ server.eap_mod }}
 
-	Auth-Type eap {
-		eap {
+	Auth-Type {{ server.eap_mod }} {
+		{{ server.eap_mod }} {
 			handled = 1
 		}
 		if (handled && (Response-Packet-Type == Access-Challenge)) {
@@ -146,7 +146,7 @@ post-auth {
 		{{ server.user_store }}
 		attr_filter.access_reject
 
-		eap
+		{{ server.eap_mod }}
 
 		remove_reply_message_if_eap
 	}
@@ -160,7 +160,7 @@ pre-proxy {
 }
 
 post-proxy {
-	eap
+	{{ server.eap_mod }}
 }
 }
 {% endfor %}

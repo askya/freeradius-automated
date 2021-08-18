@@ -33,10 +33,10 @@ eap {{ eap_module.name }} {
 	## Common TLS configuration for TLS-based EAP types
 	tls-config tls-common {
 		private_key_password = {{ eap_module.tls_common.private_key_password }}
-		private_key_file = {{ eap_module.tls_common.private_key_file }}
-		certificate_file = {{ eap_module.tls_common.certificate_file }}
+		private_key_file = {{ raddb }}/certs/{{ eap_module.tls_common.private_key_file }}
+		certificate_file = {{ raddb }}/certs/{{ eap_module.tls_common.certificate_file }}
 
-		ca_file = {{ eap_module.tls_common.ca_file }}
+		ca_file = {{ raddb }}/certs/{{ eap_module.tls_common.ca_file }}
 
 		auto_chain = yes
 

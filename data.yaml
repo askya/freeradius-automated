@@ -3,13 +3,14 @@ servers:
     listen:
       auth:
         ip: 10.7.2.32
-        port: 1814
+        port: 1812
         clients_socket_name: employe
       acct:
         ip: 10.7.2.32
-        port: 1815
+        port: 1813
         clients_socket_name: employe
     user_store: sql_employe
+    eap_mod: eap_employe
     modules:
       authorization:
         - sql_employe
@@ -18,6 +19,26 @@ servers:
         - sql_employe
       session:
         - sql_employe
+  - name: resto
+    listen:
+      auth:
+        ip: 10.7.2.32
+        port: 1814
+        clients_socket_name: resto
+      acct:
+        ip: 10.7.2.32
+        port: 1815
+        clients_socket_name: resto
+    user_store: sql_resto
+    eap_mod: eap_resto
+    modules:
+      authorization:
+        - sql_resto
+        - sqlcounter
+      accounting:
+        - sql_resto
+      session:
+        - sql_resto
 tunnel_servers:
   - name: tunnel_employe
     listen:
@@ -34,15 +55,30 @@ tunnel_servers:
         - sql_employe
       session:
         - sql_employe
+  - name: tunnel_resto
+    listen:
+      ip: 127.0.0.1
+      port: 18122
+    user_store: sql_resto
+    modules:
+      authz:
+        - expiration
+        - logintime
+        - sql_resto
+        - sqlcounter
+      acct:
+        - sql_resto
+      session:
+        - sql_resto
 client_sockets:
-  - restaurant:
-    - client: resto-ap1
-      ip: 172.16.16.10
+  - resto:
+    - client: tsw1
+      ip: 10.7.2.150
       secret: "Thisisasecret"
       nas_type: "other"
-    - client: resto-ap2
-      ip: 172.16.16.11
-      secret: "AP1secret"
+    - client: localhost
+      ip: 127.0.0.1
+      secret: "Lsecret"
   - employe:
     - client: emp1
       ip: 10.0.4.231
@@ -53,32 +89,53 @@ client_sockets:
     - client: emp3
       ip: 10.0.4.233
       secret: "zap-secret"
-    - client: r1-sw-1
-      ip: 10.0.2.5
-      secret: "zap-secret"
-    - client: r1-sw-2
-      ip: 10.0.2.6
-      secret: "zap-secret"
-    - client: rdc-sw-1
-      ip: 10.0.2.7
-      secret: "zap-secret"
+    - client: tsw1
+      ip: 10.7.2.150
+      secret: "Thisisasecret"
+      nas_type: "other"
+    - client: localhost
+      ip: 127.0.0.1
+      secret: "Lsecret"
 userstores:
   - name: sql_employe
     driver: rlm_sql_mysql
     dialect: mysql
     server: 10.7.2.32
     port: 3306
-    login: crafid
+    login: crafidu0
     password: 2beKnown
-    radius_db: crafid
-    rad_server_net: 10.7.2.0/24
+    radius_db: crafiddb0
+  - name: sql_resto
+    driver: rlm_sql_mysql
+    dialect: mysql
+    server: 10.7.2.32
+    port: 3306
+    login: crafidu1
+    password: 2beKnown
+    radius_db: crafiddb1
 eap_configs:
-  - name: employe
+  - name: eap_employe
     default_eap_type: ttls
     tls_common:
-      private_key_password: Veloat
-      private_key_file: zekihui.key.pem
-      certificate_file: zekihui.cert.pem
+      private_key_password: ''
+      private_key_file: crafid.key.pem
+      certificate_file: crafid.cert.pem
+      ca_file: ca-chain.cert.pem
+      auto_chain: yes
+      tls_min_version: 1.0
+      tls_max_version: 1.2
+    ttls:
+      default_tunneled_eap: mschapv2
+      virtual_server: tunnel_employe
+    peap:
+      default_tunneled_eap: mschapv2
+      virtual_server: tunnel_employe
+  - name: eap_resto
+    default_eap_type: ttls
+    tls_common:
+      private_key_password: ''
+      private_key_file: crafid.key.pem
+      certificate_file: crafid.cert.pem
       ca_file: ca-chain.cert.pem
       auto_chain: yes
       tls_min_version: 1.0

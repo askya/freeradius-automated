@@ -28,8 +28,11 @@
 
     - name: Remove FreeRADIUS default config
       ansible.builtin.file:
-        path: "{{ raddb }}/sites-enabled/*"
+        path: "{{ raddb }}/sites-enabled/{{ item }}"
         state: absent
+      with_items:
+        - default
+        - inner-tunnel
 
     - name: Load site description
       ansible.builtin.include_vars:
